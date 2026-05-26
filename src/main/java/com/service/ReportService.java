@@ -1,26 +1,30 @@
 package com.service;
 
+import com.config.MongoTemplateRouter;
 import com.model.Employee;
-import com.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.LookupOperation;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class ReportService {
-    @Autowired
-    private EmployeeRepository employeeRepository;
-    @Autowired
-    private MongoTemplate mongoTemplate;
 
-    // 1. Средняя зарплата по отделам (с $lookup)
+    private final MongoTemplateRouter templateRouter;
+
+    @Autowired
+    public ReportService(MongoTemplateRouter templateRouter) {
+        this.templateRouter = templateRouter;
+    }
+
     public List<Map> avgSalaryByDepartment() {
+        MongoTemplate t = templateRouter.getTemplateForCurrentUser();
         LookupOperation lookup = LookupOperation.newLookup()
                 .from("departments")
                 .localField("department_id")
@@ -32,24 +36,24 @@ public class ReportService {
                 Aggregation.group("dept.name").avg("salary").as("avg_salary"),
                 Aggregation.project("avg_salary").and("_id").as("department")
         );
-        AggregationResults<Map> results = mongoTemplate.aggregate(aggregation, "employees", Map.class);
+        AggregationResults<Map> results = t.aggregate(aggregation, "employees", Map.class);
         return results.getMappedResults();
     }
 
-    // 2. Простой запрос: сотрудники с зарплатой выше minSalary
     public List<Employee> employeesWithSalaryGreaterThan(double minSalary) {
-        return employeeRepository.findAll().stream()
-                .filter(e -> e.getSalary() != null && e.getSalary() > minSalary)
-                .collect(Collectors.toList());
+        MongoTemplate t = templateRouter.getTemplateForCurrentUser();
+        Query query = Query.query(Criteria.where("salary").gt(minSalary));
+        return t.find(query, Employee.class);
     }
 
-    // 3. Группировка по должностям
     public List<Map> countByPosition() {
+        MongoTemplate t = templateRouter.getTemplateForCurrentUser();
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.group("position").count().as("count"),
                 Aggregation.project("count").and("_id").as("position")
         );
-        AggregationResults<Map> results = mongoTemplate.aggregate(aggregation, "employees", Map.class);
+        AggregationResults<Map> results = t.aggregate(aggregation, "employees", Map.class);
         return results.getMappedResults();
     }
+
 }

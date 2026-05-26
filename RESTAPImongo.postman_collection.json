@@ -1,0 +1,411 @@
+{
+  "info": {
+    "name": "RESTAPImongo",
+    "description": "Коллекция эндпоинтов для тестирования ролевой авторизации через MongoDB.\n\nРоли:\n- READER  — только чтение employees и departments\n- EDITOR  — CRUD employees + чтение departments\n- ADMIN   — всё, включая /api/admin/users\n\nСначала выполните Login, затем установите токен в переменную {{token}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login as READER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('token', json.token);",
+                  "console.log('Token set for:', json.login, 'role:', json.role);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"reader\",\n  \"password\": \"reader123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Вход под READER. Токен автоматически сохраняется в переменную {{token}}."
+          }
+        },
+        {
+          "name": "Login as EDITOR",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('token', json.token);",
+                  "console.log('Token set for:', json.login, 'role:', json.role);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"editor\",\n  \"password\": \"editor123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Вход под EDITOR. Токен автоматически сохраняется в переменную {{token}}."
+          }
+        },
+        {
+          "name": "Login as ADMIN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('token', json.token);",
+                  "console.log('Token set for:', json.login, 'role:', json.role);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Вход под ADMIN. Токен автоматически сохраняется в переменную {{token}}."
+          }
+        }
+      ],
+      "description": "Аутентификация. После успешного логина токен сохраняется в {{token}}."
+    },
+    {
+      "name": "Employees",
+      "item": [
+        {
+          "name": "Get all employees",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/employees",
+              "host": ["{{base_url}}"],
+              "path": ["api", "employees"]
+            }
+          }
+        },
+        {
+          "name": "Get employee by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/employees/{{employee_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "employees", "{{employee_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"position\": \"Developer\",\n  \"salary\": 75000,\n  \"departmentId\": null\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/employees",
+              "host": ["{{base_url}}"],
+              "path": ["api", "employees"]
+            }
+          }
+        },
+        {
+          "name": "Update employee",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe Updated\",\n  \"position\": \"Senior Developer\",\n  \"salary\": 95000,\n  \"departmentId\": null\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/employees/{{employee_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "employees", "{{employee_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete employee",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/employees/{{employee_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "employees", "{{employee_id}}"]
+            }
+          }
+        }
+      ],
+      "description": "CRUD для сотрудников.\nREADER — только GET\nEDITOR — всё\nADMIN — всё"
+    },
+    {
+      "name": "Departments",
+      "item": [
+        {
+          "name": "Get all departments",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/departments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "departments"]
+            }
+          }
+        },
+        {
+          "name": "Get department by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/departments/{{department_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "departments", "{{department_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create department",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Engineering\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/departments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "departments"]
+            }
+          }
+        },
+        {
+          "name": "Delete department",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/departments/{{department_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "departments", "{{department_id}}"]
+            }
+          }
+        }
+      ],
+      "description": "CRUD для отделов.\nREADER — только GET\nEDITOR — только GET\nADMIN — всё"
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Average salary by department",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports/avg-salary-by-dept",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports", "avg-salary-by-dept"]
+            }
+          }
+        },
+        {
+          "name": "Employees above salary",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports/employees-above-salary?minSalary=50000",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports", "employees-above-salary"],
+              "query": [
+                { "key": "minSalary", "value": "50000" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Count by position",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/reports/count-by-position",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reports", "count-by-position"]
+            }
+          }
+        }
+      ],
+      "description": "Отчёты (доступны всем аутентифицированным пользователям)."
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "List users",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Create user",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"newuser\",\n  \"password\": \"pass123\",\n  \"role\": \"READER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Delete user",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{login}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{login}}"]
+            }
+          }
+        }
+      ],
+      "description": "Управление пользователями (только для ADMIN)."
+    },
+    {
+      "name": "Expected HTTP codes by role",
+      "item": [
+        {
+          "name": "READER only GET",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "" }
+          },
+          "response": []
+        },
+        {
+          "name": "EDITOR employee full, department read",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "" }
+          },
+          "response": []
+        },
+        {
+          "name": "ADMIN everything",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "" }
+          },
+          "response": []
+        }
+      ],
+      "description": "Таблица ожидаемых HTTP кодов:\n\n| Роль | Endpoint | GET | POST | PUT | DELETE |\n|------|----------|:---:|:----:|:---:|:------:|\n| READER | /api/employees | 200 | 403 | 403 | 403 |\n| READER | /api/departments | 200 | 403 | — | 403 |\n| READER | /api/admin/users | 403 | 403 | — | 403 |\n| READER | /api/reports/* | 200 | — | — | — |\n| EDITOR | /api/employees | 200 | 200 | 200 | 200 |\n| EDITOR | /api/departments | 200 | 403 | — | 403 |\n| EDITOR | /api/admin/users | 403 | 403 | — | 403 |\n| EDITOR | /api/reports/* | 200 | — | — | — |\n| ADMIN | /api/employees | 200 | 200 | 200 | 200 |\n| ADMIN | /api/departments | 200 | 200 | — | 200 |\n| ADMIN | /api/admin/users | 200 | 200 | — | 200 |\n| ADMIN | /api/reports/* | 200 | — | — | — |\n\n403 приходит от MongoDB (MongoCommandException), а не от Spring Security."
+    }
+  ]
+}
