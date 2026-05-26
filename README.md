@@ -145,6 +145,7 @@ TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
 curl -s http://localhost:8080/api/employees \
   -H "Authorization: Bearer $TOKEN"
 ```
+Вместо Postman или curl вы можете использовать frontend приложение для этого сервера: https://github.com/Alex2aA/RESTAPImongoFrontend
 
 ## Структура проекта
 
